@@ -58,7 +58,7 @@ def build(manifest: dict[str, Any], *, snapshot_id: str, created_at: str, snapsh
           headline: str, pick: dict[str, str] | None, metric: dict[str, Any],
           contenders: list[dict[str, Any]], items: int, rules: str, mock: bool,
           test: str | None = "exact McNemar, paired", alpha: float | None = 0.05,
-          study: str | None = None) -> dict[str, Any]:
+          study: str | None = None, latency: dict[str, str] | None = None) -> dict[str, Any]:
     arena = {k: manifest[k] for k in ("name", "title", "question", "repo") if k in manifest}
     if study:
         arena["study"] = study
@@ -74,6 +74,7 @@ def build(manifest: dict[str, Any], *, snapshot_id: str, created_at: str, snapsh
         "headline": headline,
         "pick": pick,
         "metric": metric,
+        **({"latency": latency} if latency else {}),
         "contenders": contenders,
         "data": data,
         "method": method,

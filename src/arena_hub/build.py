@@ -89,12 +89,17 @@ def ranked(s: dict[str, Any], limit: int = 5) -> list[dict[str, Any]]:
     return rows[:limit]
 
 
+def latency_label(s: dict[str, Any]) -> str:
+    latency = s.get("latency") or {}
+    return latency.get("label") or latency.get("stat", "p50")
+
+
 def card(s: dict[str, Any]) -> str:
     m = s["metric"]
     rows = "".join(
         f"<tr class='v-{c['verdict']}'><td>{html.escape(c['name'])}"
         f"{' <span class=tag>pick</span>' if c['verdict'] == 'pick' else ''}</td>"
-        f"<td>{fmt_quality(c['quality'], m)}</td><td>{ms(c['p50_ms'])}</td>"
+        f"<td>{fmt_quality(c['quality'], m)}</td><td>{ms(c['latency_ms'])}</td>"
         f"<td>{usd(c['cost_per_1k_usd'])}</td></tr>"
         for c in ranked(s))
     more = len(s["contenders"]) - len(ranked(s))
@@ -113,7 +118,8 @@ def card(s: dict[str, Any]) -> str:
   <p class=question>{inline(s['arena']['question'])}</p>
   <p class=answer>{inline(s['headline'])}</p>
   <table>
-    <thead><tr><th>Contender</th><th>{html.escape(m['label'])}</th><th>p50</th>
+    <thead><tr><th>Contender</th><th>{html.escape(m['label'])}</th>
+    <th>{html.escape(latency_label(s))}</th>
     <th>Cost / 1k</th></tr></thead>
     <tbody>{rows}</tbody>
   </table>

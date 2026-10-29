@@ -72,7 +72,7 @@ def make_summary(tmp_path, created_at, mock):
         pick={"name": "a", "reason": "best"}, metric={"name": "accuracy", "label": "Accuracy",
                                                        "higher_is_better": True,
                                                        "format": "percent"},
-        contenders=[{"name": "a", "quality": 1.0, "p50_ms": 1.0, "cost_per_1k_usd": None,
+        contenders=[{"name": "a", "quality": 1.0, "latency_ms": 1.0, "cost_per_1k_usd": None,
                      "verdict": "pick"}], items=3, rules="r", mock=mock)
     contract.write(tmp_path, folder, s)
     return s

@@ -71,7 +71,7 @@ def headline(stats: dict[str, dict[str, Any]], rec: dict[str, Any], metric: dict
 def contender_rows(stats: dict[str, dict[str, Any]], rec: dict[str, Any]) -> list[dict[str, Any]]:
     order = sorted(stats, key=lambda n: (-(stats[n]["quality"] or 0), n))
     return [{"name": n, "kind": stats[n]["kind"], "quality": stats[n]["quality"],
-             "p50_ms": stats[n]["p50_ms"], "cost_per_1k_usd": stats[n]["cost_per_1k_usd"],
+             "latency_ms": stats[n]["p50_ms"], "cost_per_1k_usd": stats[n]["cost_per_1k_usd"],
              "errors": stats[n]["errors"], "verdict": rec["verdicts"].get(n, "other")}
             for n in order]
 
@@ -90,7 +90,7 @@ def render(summary: dict[str, Any]) -> str:
         "|---|---:|---:|---:|---:|---|",
     ]
     for c in summary["contenders"]:
-        lines.append(f"| {c['name']} | {fmt_quality(c['quality'], m)} | {ms(c['p50_ms'])} | "
+        lines.append(f"| {c['name']} | {fmt_quality(c['quality'], m)} | {ms(c['latency_ms'])} | "
                      f"{usd(c['cost_per_1k_usd'])} | {c.get('errors', 0)} | {c['verdict']} |")
     labels = summary["data"]["labels"]
     lines += ["", "## Method", "",

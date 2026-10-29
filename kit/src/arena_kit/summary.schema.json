@@ -4,53 +4,148 @@
   "title": "arena-summary/1",
   "description": "One arena study's latest finding, in a shape any language can write and the hub can read. Hand-written metadata comes from the arena's arena.yaml; the rest is generated from a snapshot.",
   "type": "object",
-  "required": ["schema", "arena", "snapshot", "headline", "pick", "metric", "contenders", "data", "method", "outcome", "mock"],
+  "required": [
+    "schema",
+    "arena",
+    "snapshot",
+    "headline",
+    "pick",
+    "metric",
+    "contenders",
+    "data",
+    "method",
+    "outcome",
+    "mock"
+  ],
   "additionalProperties": false,
   "properties": {
-    "schema": { "const": "arena-summary/1" },
+    "schema": {
+      "const": "arena-summary/1"
+    },
     "arena": {
       "type": "object",
-      "required": ["name", "question", "repo"],
+      "required": [
+        "name",
+        "question",
+        "repo"
+      ],
       "additionalProperties": false,
       "properties": {
-        "name": { "type": "string", "pattern": "^[a-z0-9][a-z0-9-]*$" },
-        "title": { "type": "string" },
-        "question": { "type": "string", "minLength": 10 },
-        "repo": { "type": "string", "format": "uri" },
-        "study": { "type": "string", "description": "Set when one arena publishes several studies." }
+        "name": {
+          "type": "string",
+          "pattern": "^[a-z0-9][a-z0-9-]*$"
+        },
+        "title": {
+          "type": "string"
+        },
+        "question": {
+          "type": "string",
+          "minLength": 10
+        },
+        "repo": {
+          "type": "string",
+          "format": "uri"
+        },
+        "study": {
+          "type": "string",
+          "description": "Set when one arena publishes several studies."
+        }
       }
     },
     "snapshot": {
       "type": "object",
-      "required": ["id", "created_at", "path"],
+      "required": [
+        "id",
+        "created_at",
+        "path"
+      ],
       "additionalProperties": false,
       "properties": {
-        "id": { "type": "string" },
-        "created_at": { "type": "string", "format": "date-time" },
-        "path": { "type": "string", "description": "Snapshot folder, relative to the repo root." }
+        "id": {
+          "type": "string"
+        },
+        "created_at": {
+          "type": "string",
+          "format": "date-time"
+        },
+        "path": {
+          "type": "string",
+          "description": "Snapshot folder, relative to the repo root."
+        }
       }
     },
-    "headline": { "type": "string", "minLength": 10, "description": "The finding in one sentence. **bold** allowed." },
+    "headline": {
+      "type": "string",
+      "minLength": 10,
+      "description": "The finding in one sentence. **bold** allowed."
+    },
     "pick": {
       "oneOf": [
-        { "type": "null" },
+        {
+          "type": "null"
+        },
         {
           "type": "object",
-          "required": ["name", "reason"],
+          "required": [
+            "name",
+            "reason"
+          ],
           "additionalProperties": false,
-          "properties": { "name": { "type": "string" }, "reason": { "type": "string" } }
+          "properties": {
+            "name": {
+              "type": "string"
+            },
+            "reason": {
+              "type": "string"
+            }
+          }
         }
       ]
     },
     "metric": {
       "type": "object",
-      "required": ["name", "label", "higher_is_better", "format"],
+      "required": [
+        "name",
+        "label",
+        "higher_is_better",
+        "format"
+      ],
       "additionalProperties": false,
       "properties": {
-        "name": { "type": "string" },
-        "label": { "type": "string" },
-        "higher_is_better": { "type": "boolean" },
-        "format": { "enum": ["percent", "number"] }
+        "name": {
+          "type": "string"
+        },
+        "label": {
+          "type": "string"
+        },
+        "higher_is_better": {
+          "type": "boolean"
+        },
+        "format": {
+          "enum": [
+            "percent",
+            "number"
+          ]
+        }
+      }
+    },
+    "latency": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "stat"
+      ],
+      "description": "Which latency each contender's latency_ms is. Omitted = p50.",
+      "properties": {
+        "stat": {
+          "enum": [
+            "p50",
+            "p95"
+          ]
+        },
+        "label": {
+          "type": "string"
+        }
       }
     },
     "contenders": {
@@ -58,63 +153,156 @@
       "minItems": 1,
       "items": {
         "type": "object",
-        "required": ["name", "quality", "p50_ms", "cost_per_1k_usd", "verdict"],
+        "required": [
+          "name",
+          "quality",
+          "latency_ms",
+          "cost_per_1k_usd",
+          "verdict"
+        ],
         "additionalProperties": false,
         "properties": {
-          "name": { "type": "string" },
-          "kind": { "type": "string" },
-          "quality": { "type": ["number", "null"] },
-          "p50_ms": { "type": ["number", "null"], "minimum": 0 },
-          "cost_per_1k_usd": { "type": ["number", "null"], "minimum": 0, "description": "null = unknown, never 0 for unknown." },
-          "errors": { "type": "integer", "minimum": 0 },
-          "verdict": { "enum": ["pick", "tied", "worse", "other", "excluded", "baseline"] },
-          "note": { "type": "string" }
+          "name": {
+            "type": "string"
+          },
+          "kind": {
+            "type": "string"
+          },
+          "quality": {
+            "type": [
+              "number",
+              "null"
+            ]
+          },
+          "latency_ms": {
+            "type": [
+              "number",
+              "null"
+            ],
+            "minimum": 0,
+            "description": "The statistic named in summary.latency (median by default). null = not measured."
+          },
+          "cost_per_1k_usd": {
+            "type": [
+              "number",
+              "null"
+            ],
+            "minimum": 0,
+            "description": "null = unknown, never 0 for unknown."
+          },
+          "errors": {
+            "type": "integer",
+            "minimum": 0
+          },
+          "verdict": {
+            "enum": [
+              "pick",
+              "tied",
+              "worse",
+              "other",
+              "excluded",
+              "baseline"
+            ]
+          },
+          "note": {
+            "type": "string"
+          }
         }
       }
     },
     "data": {
       "type": "object",
-      "required": ["items", "labels"],
+      "required": [
+        "items",
+        "labels"
+      ],
       "additionalProperties": false,
       "properties": {
-        "items": { "type": "integer", "minimum": 0 },
-        "description": { "type": "string" },
+        "items": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "description": {
+          "type": "string"
+        },
         "labels": {
           "type": "object",
-          "required": ["source"],
+          "required": [
+            "source"
+          ],
           "additionalProperties": false,
           "properties": {
             "source": {
-              "enum": ["hand-written", "production", "reviewed", "llm-judge", "simulated", "mixed"],
+              "enum": [
+                "hand-written",
+                "production",
+                "reviewed",
+                "llm-judge",
+                "simulated",
+                "mixed"
+              ],
               "description": "Where ground truth came from. Model-generated labels are never 'hand-written'."
             },
-            "note": { "type": "string" }
+            "note": {
+              "type": "string"
+            }
           }
         }
       }
     },
     "method": {
       "type": "object",
-      "required": ["rules"],
+      "required": [
+        "rules"
+      ],
       "additionalProperties": false,
       "properties": {
-        "rules": { "type": "string", "description": "The fixed rule that turned numbers into the pick." },
-        "test": { "type": "string" },
-        "alpha": { "type": "number" }
+        "rules": {
+          "type": "string",
+          "description": "The fixed rule that turned numbers into the pick."
+        },
+        "test": {
+          "type": "string"
+        },
+        "alpha": {
+          "type": "number"
+        }
       }
     },
     "outcome": {
       "type": "object",
-      "required": ["status"],
+      "required": [
+        "status"
+      ],
       "additionalProperties": false,
       "description": "What happened in the product because of this result.",
       "properties": {
-        "status": { "enum": ["changed", "kept", "pending", "not-applicable"] },
-        "note": { "type": "string" },
-        "evidence_url": { "type": "string", "format": "uri" }
+        "status": {
+          "enum": [
+            "changed",
+            "kept",
+            "pending",
+            "not-applicable"
+          ]
+        },
+        "note": {
+          "type": "string"
+        },
+        "evidence_url": {
+          "type": "string",
+          "format": "uri"
+        }
       }
     },
-    "caveats": { "type": "array", "items": { "type": "string" } },
-    "mock": { "type": "boolean", "description": "True when produced by mock providers. The hub refuses these." }
+    "caveats": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    },
+    "mock": {
+      "type": "boolean",
+      "description": "True when produced by mock providers. The hub refuses these."
+    }
   }
 }

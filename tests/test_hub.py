@@ -16,9 +16,9 @@ def summary(name, created_at, mock=False, status="pending"):
         "metric": {"name": "accuracy", "label": "Accuracy", "higher_is_better": True,
                    "format": "percent"},
         "contenders": [
-            {"name": "b", "quality": 0.5, "p50_ms": 10, "cost_per_1k_usd": None,
+            {"name": "b", "quality": 0.5, "latency_ms": 10, "cost_per_1k_usd": None,
              "verdict": "worse"},
-            {"name": "a", "quality": 0.9, "p50_ms": 1200, "cost_per_1k_usd": 0.01,
+            {"name": "a", "quality": 0.9, "latency_ms": 1200, "cost_per_1k_usd": 0.01,
              "verdict": "pick"},
         ],
         "data": {"items": 1200, "labels": {"source": "reviewed"}},
