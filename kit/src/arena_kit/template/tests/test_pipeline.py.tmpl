@@ -1,0 +1,26 @@
+import asyncio
+import json
+import shutil
+
+from arena_kit import contract, run
+from arena_kit.snapshot import take
+
+from __PACKAGE__ import contenders, dataset
+
+
+def test_mock_run_snapshots_a_valid_summary(tmp_path):
+    report = asyncio.run(run(contenders.load(mock=True), dataset.load(), dataset.score, mock=True))
+    tmp_path.mkdir(exist_ok=True)
+    for name in ("arena.yaml", "README.md"):
+        shutil.copy(dataset.ROOT / name, tmp_path / name)
+    folder = take(tmp_path, report)
+    summary = json.loads((folder / "summary.json").read_text())
+    contract.validate(summary)
+    assert summary["mock"] is True
+    assert summary["pick"] is not None
+    assert (tmp_path / "snapshots" / "latest.json").exists()
+
+
+def test_keyword_rules_cover_every_starter_label():
+    items = dataset.load()
+    assert {contenders.keyword_rules(i["input"]) for i in items} == set(dataset.labels(items))

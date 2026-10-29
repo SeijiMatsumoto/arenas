@@ -1,0 +1,12 @@
+# Every arena the hub indexes. Adding one is one entry.
+# `local` is used by `hub build --local` (sibling checkout); otherwise the summary is fetched from
+# GitHub. `summaries` defaults to [snapshots/latest.json]; list several for multi-study arenas.
+arenas:
+  - repo: SeijiMatsumoto/decision-arena
+    local: ../decision-arena
+  - repo: SeijiMatsumoto/retrieval-arena
+    local: ../retrieval-arena
+  - repo: SeijiMatsumoto/grounding-arena
+    local: ../grounding-arena
+  - repo: SeijiMatsumoto/voice-arena
+    local: ../voice-arena

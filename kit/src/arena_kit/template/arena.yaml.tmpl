@@ -1,0 +1,17 @@
+# Hand-written metadata the hub shows next to each result. Edit any time, then `uv run arena-kit refresh`.
+name: __ARENA_NAME__
+title: __TITLE__
+question: "__QUESTION__"
+repo: https://github.com/__OWNER__/__ARENA_NAME__
+data: Placeholder headlines written while scaffolding. Replace with real, public enable-ai data.
+labels:
+  # hand-written | production | reviewed | llm-judge | simulated | mixed
+  # Never call model-generated labels hand-written.
+  source: hand-written
+  note: Starter examples only; not a real eval.
+outcome:
+  # changed | kept | pending | not-applicable. Link the enable-ai PR when it's "changed".
+  status: pending
+  note: No real run yet.
+caveats:
+  - Starter dataset is tiny and hand-written; replace it before drawing conclusions.

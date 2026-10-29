@@ -1,0 +1,12 @@
+{"id": "s01", "input": "OpenAI releases GPT-6 Luna with a 2M-token context window", "expected": "release", "tags": ["model"]}
+{"id": "s02", "input": "Anthropic ships Claude Code 3.0 with background agents", "expected": "release", "tags": ["tool"]}
+{"id": "s03", "input": "LangChain 1.4 adds native MCP tool loading", "expected": "release", "tags": ["tool"]}
+{"id": "s04", "input": "New paper shows retrieval beats long context on multi-hop QA", "expected": "research", "tags": ["paper"]}
+{"id": "s05", "input": "Study measures hallucination rates across 40 open-weight models", "expected": "research", "tags": ["paper"]}
+{"id": "s06", "input": "DeepMind researchers propose a cheaper RLHF objective", "expected": "research", "tags": ["paper"]}
+{"id": "s07", "input": "Vector database startup raises $80M Series B", "expected": "funding", "tags": ["company"]}
+{"id": "s08", "input": "Agent observability company closes $12M seed round", "expected": "funding", "tags": ["company"]}
+{"id": "s09", "input": "Eval tooling firm acquired after raising $30M", "expected": "funding", "tags": ["company"]}
+{"id": "s10", "input": "Why I stopped using agent frameworks", "expected": "opinion", "tags": ["essay"]}
+{"id": "s11", "input": "RAG is not dead, you are just chunking wrong", "expected": "opinion", "tags": ["essay"]}
+{"id": "s12", "input": "The case against fine-tuning in 2026", "expected": "opinion", "tags": ["essay"]}

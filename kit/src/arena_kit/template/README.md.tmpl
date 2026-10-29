@@ -1,0 +1,38 @@
+# __TITLE__
+
+**__QUESTION__**
+
+<!-- snapshot:start -->
+No snapshot yet. Run `uv run arena run`, then `uv run arena snapshot`.
+<!-- snapshot:end -->
+
+## Why this exists
+
+<!-- The real enable-ai decision this answers, and what happens in production today. -->
+
+## Run it
+
+```bash
+uv sync
+uv run arena run --mock      # offline, no key, checks the pipeline
+cp .env.example .env         # add OPENROUTER_API_KEY
+uv run arena run             # real calls; cached, so reruns only pay for what's new
+uv run arena snapshot        # dated snapshot + snapshots/latest.json for the hub
+```
+
+Add a contender: one entry in `contenders.yaml`. Change the task: edit
+`src/__PACKAGE__/dataset.py` (items and `score`) and `src/__PACKAGE__/contenders.py`.
+
+## Where the labels come from
+
+<!-- Hand-written, production decisions, LLM judges, reviewed? Be exact. -->
+
+## How the pick is made
+
+Fixed rules in [arena-kit](https://github.com/SeijiMatsumoto/arenas/tree/main/kit), no LLM: a
+contender ties the best one when it is within 2 points and an exact paired McNemar test doesn't
+show it is worse; the pick is the cheapest and fastest of the tied contenders.
+
+## Caveats
+
+- Starter dataset is tiny and hand-written; replace it before drawing conclusions.
