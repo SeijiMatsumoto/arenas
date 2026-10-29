@@ -12,6 +12,8 @@ picks a winner with fixed rules and paired significance tests. Same report, same
 question, the answer, the numbers, where the labels came from, and what changed in production.
 
 <!-- arenas:start -->
+| Arena | Question | Finding | Labels | Outcome |
+|---|---|---|---|---|
 <!-- arenas:end -->
 
 *This table is rebuilt daily from each arena's `snapshots/latest.json`.*
