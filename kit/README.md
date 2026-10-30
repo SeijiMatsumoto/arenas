@@ -56,3 +56,34 @@ dependencies = ["arena-kit @ git+https://github.com/SeijiMatsumoto/arenas.git#su
 [tool.hatch.metadata]
 allow-direct-references = true
 ```
+
+## Share embedding vectors between arenas
+
+`arena_kit.embeddings.EmbeddingStore` stores vectors independently of request batches and arena
+chunk IDs. The default location is `~/.cache/arena-kit/embeddings`; set `ARENA_EMBEDDING_CACHE`
+to share another directory or pass a `Path` explicitly.
+
+```python
+from arena_kit.embeddings import EmbeddingStore
+
+store = EmbeddingStore()
+vector = store.get("openai/text-embedding-3-small", exact_input_text)
+# None means that this exact representation has not been saved.
+```
+
+Keys include the API endpoint, model ID, exact UTF-8 text hash, and representation settings such
+as dimensions and input type. Text prefixes and title formatting are part of the input: different
+text deliberately misses. `representation_settings(request_body)` extracts settings, excluding
+only the input batch, model field, and the provider price filter; remaining routing options stay
+in the identity. Pass matching settings when reading. Pure price-policy changes do not invalidate
+an otherwise identical vector.
+
+Records include vector dimensions/checksum, creation time, and caller-supplied provenance. Reads
+validate integrity; writes are atomic and preserve the first valid entry. This is a reusable file
+store, not a vector search index. Model aliases can change over time: use immutable model/version
+identifiers when available, or a separate store when intentionally refreshing vectors.
+
+Store only genuine model responses under genuine model IDs. Mock fixtures must use isolated
+stores or fixture model IDs. Corpora and vectors stay local; installing the package or cloning
+an arena does not download another machine's cache. Do not assume vectors from different model
+IDs, dimensions, input types, or preprocessing can be compared.
