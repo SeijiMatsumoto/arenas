@@ -4,9 +4,10 @@
 arenas:
   - repo: SeijiMatsumoto/decision-arena
     local: ../decision-arena
-  - repo: SeijiMatsumoto/retrieval-arena
-    local: ../retrieval-arena
+  - repo: SeijiMatsumoto/dedup-arena
+    local: ../dedup-arena
   - repo: SeijiMatsumoto/grounding-arena
     local: ../grounding-arena
   - repo: SeijiMatsumoto/voice-arena
     local: ../voice-arena
+  # The new document-QA retrieval-arena is in study design. Add it when it has a real summary.
