@@ -1,0 +1,43 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="color-scheme" content="light dark">
+<title>Arenas | AI engineering, put to the test</title>
+<meta name="description" content="Reproducible AI engineering experiments. Compare quality, latency, cost, and the evidence behind each finding.">
+<link rel="stylesheet" href="style.css">
+<script src="theme.js" defer></script>
+</head>
+<body>
+<a class="skip" href="#studies">Skip to studies</a>
+<div class="shell">
+<header class="site-header">
+  <a class="wordmark" href="./" aria-label="Arenas home">arenas<span aria-hidden="true">/</span></a>
+  <nav aria-label="Main navigation"><a href="#studies">Studies</a><a href="#method">Method</a><a href="https://github.com/SeijiMatsumoto/arenas">GitHub ↗</a></nav>
+  <button id="theme" type="button" aria-label="Switch color theme" hidden>Theme</button>
+</header>
+<main>
+<section class="intro" aria-labelledby="title">
+  <p class="byline">Experiments by <a href="https://github.com/SeijiMatsumoto">Seiji Matsumoto</a></p>
+  <h1 id="title">AI engineering,<br>put to the test.</h1>
+  <p class="lede">Reproducible comparisons of quality, latency, and cost. Follow the evidence behind each engineering choice.</p>
+  <a class="hero-link" href="#studies">Explore the studies <span aria-hidden="true">↓</span></a>
+</section>
+<section id="studies" aria-labelledby="studies-title">
+  <div class="section-heading"><h2 id="studies-title">The studies <span>{count}</span></h2><p>Questions, findings, and the tradeoffs behind them.</p></div>
+  <div class="studies">{cards}</div>
+</section>
+<section class="method" id="method" aria-labelledby="method-title">
+  <div><h2 id="method-title">Built to be questioned.</h2><p>Every finding links back to the run that produced it.</p>
+  <a href="https://github.com/SeijiMatsumoto/arenas/tree/main/kit">Build an experiment with arena-kit ↗</a></div>
+  <dl><div><dt>Same workload</dt><dd>Approaches are compared on shared examples, with quality, latency, and cost reported together.</dd></div>
+  <div><dt>Visible assumptions</dt><dd>Label sources and caveats stay with the results. Model-generated labels are identified as such.</dd></div>
+  <div><dt>Reproducible decisions</dt><dd>Fixed selection rules, paired tests, and dated snapshots make each recommendation inspectable.</dd></div></dl>
+</section>
+{missing}
+</main>
+<footer class="site-footer"><p>Arenas <span aria-hidden="true">/</span> Seiji Matsumoto</p><p>Updated {built} <a href="https://github.com/SeijiMatsumoto/arenas">View source ↗</a></p></footer>
+</div>
+</body>
+</html>

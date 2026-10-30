@@ -96,139 +96,71 @@ def latency_label(s: dict[str, Any]) -> str:
 
 def card(s: dict[str, Any]) -> str:
     m = s["metric"]
+    repo = html.escape(s["arena"]["repo"])
+    name = html.escape(s["arena"].get("title") or s["arena"]["name"])
+    picked = next((c for c in s["contenders"]
+                   if s.get("pick") and c["name"] == s["pick"]["name"]), None)
+    # A concise preview; the complete finding remains available in the disclosure.
+    finding = re.split(r"(?<=[.!?])\s+(?=[A-Z])", s["headline"], maxsplit=1)[0]
     rows = "".join(
-        f"<tr class='v-{c['verdict']}'><td>{html.escape(c['name'])}"
-        f"{' <span class=tag>pick</span>' if c['verdict'] == 'pick' else ''}</td>"
+        f"<tr class='v-{c['verdict']}'><th scope='row'>{html.escape(c['name'])}"
+        f"{' <span class=tag>Pick</span>' if c['verdict'] == 'pick' else ''}</th>"
         f"<td>{fmt_quality(c['quality'], m)}</td><td>{ms(c['latency_ms'])}</td>"
         f"<td>{usd(c['cost_per_1k_usd'])}</td></tr>"
-        for c in ranked(s))
-    more = len(s["contenders"]) - len(ranked(s))
+        for c in ranked(s, limit=len(s["contenders"])))
+    metrics = ""
+    if picked:
+        metrics = f"""<div class="selection"><p class="selection-label">Fixed-rule pick</p>
+        <p class="pick-name">{html.escape(picked['name'])}</p>
+        <dl class="metrics">
+          <div><dt>{html.escape(m['label'])}</dt><dd>{fmt_quality(picked['quality'], m)}</dd></div>
+          <div><dt>{html.escape(latency_label(s))}</dt><dd>{ms(picked['latency_ms'])}</dd></div>
+          <div><dt>Cost / 1k</dt><dd>{usd(picked['cost_per_1k_usd'])}</dd></div>
+        </dl><p class="metric-note">Different studies measure different outcomes. Compare within each study.</p></div>"""
+    else:
+        metrics = '<div class="selection"><p class="pick-name">No approach selected</p></div>'
+    labels = s["data"]["labels"]
+    caveats = "".join(f"<li>{inline(c)}</li>" for c in s.get("caveats", []))
     outcome = s["outcome"]
     outcome_text = html.escape(OUTCOME[outcome["status"]])
     if outcome.get("evidence_url"):
         outcome_text = f"<a href='{html.escape(outcome['evidence_url'])}'>{outcome_text}</a>"
-    note = f"<p class=note>{inline(outcome['note'])}</p>" if outcome.get("note") else ""
-    labels = s["data"]["labels"]
+    caution = (f"<p class=study-caveat><strong>Keep in mind:</strong> {inline(s['caveats'][0])}</p>"
+               if s.get("caveats") else "")
+    study = (f"<p class=study-name>{html.escape(s['arena']['study'])}</p>"
+             if s["arena"].get("study") else "")
     return f"""
-<article>
-  <header>
-    <h2><a href="{html.escape(s['arena']['repo'])}">{html.escape(title(s))}</a></h2>
-    <time datetime="{s['snapshot']['created_at']}">{s['snapshot']['created_at'][:10]}</time>
-  </header>
-  <p class=question>{inline(s['arena']['question'])}</p>
-  <p class=answer>{inline(s['headline'])}</p>
-  <table>
-    <thead><tr><th>Contender</th><th>{html.escape(m['label'])}</th>
-    <th>{html.escape(latency_label(s))}</th>
-    <th>Cost / 1k</th></tr></thead>
-    <tbody>{rows}</tbody>
-  </table>
-  {f"<p class=more>+ {more} more in the snapshot</p>" if more > 0 else ""}
-  <ul class=facts>
-    <li title="{html.escape(labels.get('note', ''))}">{html.escape(LABELS[labels['source']])}</li>
-    <li>{s['data']['items']:,} items</li>
-    <li class="outcome o-{outcome['status']}">{outcome_text}</li>
-  </ul>
-  {note}
-  <footer><a href="{html.escape(snapshot_url(s))}">Full snapshot →</a>
-  <a href="{html.escape(s['arena']['repo'])}">Repo →</a></footer>
+<article class="study" id="{html.escape(s['arena']['name'])}">
+  <div class="study-main">
+    <div class="study-copy">
+      <div class="study-meta"><h3><a href="{repo}">{name}</a></h3>
+        <time datetime="{html.escape(s['snapshot']['created_at'])}">{s['snapshot']['created_at'][:10]}</time></div>
+      {study}
+      <h4>{inline(s['arena']['question'])}</h4>
+      <p class="finding">{inline(finding)}</p>
+      {caution}
+      <p class="provenance">{s['data']['items']:,} evaluated items <span aria-hidden="true">/</span> {html.escape(LABELS[labels['source']])}</p>
+      <div class="study-links"><a class="report-link" href="{html.escape(snapshot_url(s))}">Read the study <span aria-hidden="true">↗</span></a>
+        <a href="{repo}">Source code <span aria-hidden="true">↗</span></a></div>
+    </div>
+    {metrics}
+  </div>
+  <details class="evidence">
+    <summary>Compare approaches &amp; inspect the evidence</summary>
+    <div class="evidence-body">
+      <p class="full-finding">{inline(s['headline'])}</p>
+      <div class="table-scroll" role="region" aria-label="{name} comparison" tabindex="0">
+      <table><caption>All {len(s['contenders'])} approaches from this snapshot</caption>
+        <thead><tr><th scope="col">Approach</th><th scope="col">{html.escape(m['label'])}</th>
+        <th scope="col">{html.escape(latency_label(s))}</th><th scope="col">Cost / 1k</th></tr></thead>
+        <tbody>{rows}</tbody></table></div>
+      <div class="evidence-notes"><div><h5>Method &amp; labels</h5>
+        <p>{inline(s['method']['rules'])}</p><p>{inline(labels.get('note', LABELS[labels['source']]))}</p></div>
+        <div><h5>Limits &amp; follow-through</h5><ul>{caveats}</ul>
+        <p>{outcome_text}. {inline(outcome.get('note', ''))}</p></div></div>
+    </div>
+  </details>
 </article>"""
-
-
-PAGE = """<!doctype html>
-<html lang="en">
-<head>
-<meta charset="utf-8">
-<meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Arenas</title>
-<meta name="description" content="Engineering decisions from a real AI product, each settled by a reproducible measurement of quality, latency and cost.">
-<style>
-:root {{
-  --bg: #fbfaf8; --surface: #ffffff; --text: #1d1c1a; --muted: #6b6862; --line: #e6e2db;
-  --accent: #1f6f5c; --accent-soft: #e3f1ec; --warn: #8a5a00; --warn-soft: #f8eedb;
-  --bad: #9b3b32;
-}}
-@media (prefers-color-scheme: dark) {{
-  :root:not([data-theme="light"]) {{
-    --bg: #151514; --surface: #1d1d1b; --text: #ecebe7; --muted: #a09d96; --line: #33322f;
-    --accent: #6cc3a8; --accent-soft: #1d332c; --warn: #e3b35c; --warn-soft: #362c18;
-    --bad: #e08a80;
-  }}
-}}
-:root[data-theme="dark"] {{
-  --bg: #151514; --surface: #1d1d1b; --text: #ecebe7; --muted: #a09d96; --line: #33322f;
-  --accent: #6cc3a8; --accent-soft: #1d332c; --warn: #e3b35c; --warn-soft: #362c18;
-  --bad: #e08a80;
-}}
-* {{ box-sizing: border-box; }}
-body {{ margin: 0; background: var(--bg); color: var(--text);
-  font: 16px/1.55 ui-sans-serif, system-ui, -apple-system, "Segoe UI", sans-serif; }}
-main {{ max-width: 1080px; margin: 0 auto; padding: 56px 16px 72px; }}
-a {{ color: var(--accent); text-decoration: none; }}
-a:hover {{ text-decoration: underline; }}
-.intro h1 {{ font-size: 2rem; letter-spacing: -0.02em; margin: 0 0 12px; }}
-.intro p {{ max-width: 68ch; color: var(--muted); margin: 0 0 12px; }}
-.rules {{ display: flex; flex-wrap: wrap; gap: 8px; padding: 0; margin: 20px 0 40px;
-  list-style: none; }}
-.rules li {{ border: 1px solid var(--line); border-radius: 999px; padding: 4px 12px;
-  font-size: 0.85rem; color: var(--muted); background: var(--surface); }}
-.grid {{ display: grid; grid-template-columns: repeat(auto-fill, minmax(min(100%, 480px), 1fr));
-  gap: 20px; }}
-article {{ background: var(--surface); border: 1px solid var(--line); border-radius: 14px;
-  padding: 22px; display: flex; flex-direction: column; gap: 12px; min-width: 0; }}
-article header {{ display: flex; justify-content: space-between; align-items: baseline; gap: 12px; }}
-h2 {{ font-size: 1.05rem; margin: 0; }}
-time {{ color: var(--muted); font-size: 0.85rem; font-variant-numeric: tabular-nums;
-  white-space: nowrap; }}
-.question {{ font-size: 1.15rem; font-weight: 600; line-height: 1.35; margin: 0; }}
-.answer {{ margin: 0; border-left: 3px solid var(--accent); padding-left: 12px; }}
-table {{ width: 100%; border-collapse: collapse; font-size: 0.88rem;
-  font-variant-numeric: tabular-nums; }}
-th, td {{ text-align: right; padding: 6px 4px; border-bottom: 1px solid var(--line); }}
-th:first-child, td:first-child {{ text-align: left; overflow-wrap: anywhere; }}
-th {{ color: var(--muted); font-weight: 500; }}
-tr.v-pick td {{ font-weight: 600; }}
-tr.v-worse td, tr.v-excluded td {{ color: var(--muted); }}
-.tag {{ background: var(--accent-soft); color: var(--accent); border-radius: 6px;
-  padding: 1px 6px; font-size: 0.75rem; font-weight: 600; margin-left: 4px; }}
-.more, .note {{ color: var(--muted); font-size: 0.85rem; margin: 0; }}
-.facts {{ display: flex; flex-wrap: wrap; gap: 6px; list-style: none; padding: 0; margin: 0;
-  font-size: 0.8rem; }}
-.facts li {{ border: 1px solid var(--line); border-radius: 6px; padding: 2px 8px;
-  color: var(--muted); }}
-.facts .o-changed {{ background: var(--accent-soft); color: var(--accent); border-color: transparent; }}
-.facts .o-pending {{ background: var(--warn-soft); color: var(--warn); border-color: transparent; }}
-article footer {{ margin-top: auto; display: flex; gap: 16px; font-size: 0.9rem; }}
-.missing {{ margin-top: 32px; color: var(--muted); font-size: 0.85rem; }}
-.missing code {{ color: var(--bad); }}
-code {{ font: 0.85em ui-monospace, SFMono-Regular, Menlo, monospace; }}
-.foot {{ margin-top: 48px; color: var(--muted); font-size: 0.85rem; }}
-</style>
-</head>
-<body>
-<main>
-  <section class=intro>
-    <h1>Arenas</h1>
-    <p>Each arena takes one real engineering decision from
-    <a href="https://github.com/SeijiMatsumoto/enable-ai">enable-ai</a>, an AI-engineering news
-    product, and settles it by measurement: several options behind one interface, scored on the
-    same data for quality, latency and cost together.</p>
-    <p>Picks come from fixed rules and paired significance tests, not from an LLM or a hunch, so
-    the same report always gives the same answer. Every card says where its labels came from.</p>
-  </section>
-  <ul class=rules>
-    <li>Real product decisions</li><li>Quality × latency × cost</li>
-    <li>Paired tests, fixed rules</li><li>Honest label sources</li><li>Dated, reproducible snapshots</li>
-  </ul>
-  <section class=grid>{cards}</section>
-  {missing}
-  <p class=foot>Built {built} from each arena's <code>snapshots/latest.json</code>
-  (<a href="https://github.com/SeijiMatsumoto/arenas/blob/main/kit/src/arena_kit/summary.schema.json">arena-summary/1</a>).
-  Source: <a href="https://github.com/SeijiMatsumoto/arenas">SeijiMatsumoto/arenas</a>.</p>
-</main>
-</body>
-</html>
-"""
 
 
 def render_page(summaries: list[dict[str, Any]], problems: list[Entry], built: str) -> str:
@@ -237,7 +169,9 @@ def render_page(summaries: list[dict[str, Any]], problems: list[Entry], built: s
         items = "".join(f"<li>{html.escape(p.repo)}: <code>{html.escape(p.problem or '')}</code></li>"
                         for p in problems)
         missing = f"<details class=missing><summary>{len(problems)} not shown</summary><ul>{items}</ul></details>"
-    return PAGE.format(cards="".join(card(s) for s in summaries), missing=missing, built=built)
+    template = Path(__file__).with_name("page.html").read_text()
+    return template.format(cards="".join(card(s) for s in summaries), missing=missing,
+                           built=built, count=len(summaries))
 
 
 def cell(text: str) -> str:
@@ -266,6 +200,8 @@ def build(*, local: bool, out: Path, readme: Path | None, registry: Path) -> lis
     out.mkdir(parents=True, exist_ok=True)
     built = datetime.now(UTC).strftime("%Y-%m-%d")
     (out / "index.html").write_text(render_page(shown, problems, built))
+    for asset in ("style.css", "theme.js"):
+        (out / asset).write_text(Path(__file__).with_name(asset).read_text())
     (out / "summaries.json").write_text(json.dumps(shown, indent=1))
     if readme:
         readme.write_text(replace_block(readme.read_text(), render_table(shown), START, END))

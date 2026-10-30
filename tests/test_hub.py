@@ -62,3 +62,25 @@ def test_build_renders_valid_arenas_and_skips_mock_and_missing(tmp_path, monkeyp
 def test_pick_is_listed_first():
     rows = hub.ranked(summary("x", "2026-10-01T00:00:00+00:00"))
     assert [r["name"] for r in rows] == ["a", "b"]
+
+
+def test_disclosure_preserves_all_evidence_and_approaches():
+    s = summary("study", "2026-10-01T00:00:00+00:00")
+    s["headline"] = "First finding. Another finding with **evidence**."
+    s["caveats"] = ["Model labels can be wrong."]
+    s["data"]["labels"]["note"] = "A <reviewed> source."
+    s["contenders"] += [dict(s["contenders"][0], name=f"extra-{i}") for i in range(6)]
+    page = hub.card(s)
+    assert "<details" in page and "<details open" not in page
+    assert "Another finding with <strong>evidence</strong>." in page
+    assert "extra-5" in page
+    assert "Model labels can be wrong." in page
+    assert "A &lt;reviewed&gt; source." in page
+
+
+def test_study_with_no_pick_does_not_invent_metrics():
+    s = summary("study", "2026-10-01T00:00:00+00:00")
+    s["pick"] = None
+    page = hub.card(s)
+    assert "No approach selected" in page
+    assert '<dl class="metrics">' not in page
